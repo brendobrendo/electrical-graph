@@ -1,252 +1,215 @@
-Home Electrical Graph Simulator - Developer Prompt Plan
+# Home Electrical Graph Simulator - Developer Prompt Plan
 
-Overview
+## Overview
 
-This document provides a step-by-step plan for building the Home Electrical Graph Simulator, with iterative chunks and prompts for a code-generation LLM to implement each step in a test-driven manner. The goal is to ensure incremental progress, strong testing, and a smooth integration of components.
+This document provides a step-by-step plan for building the **Home Electrical Graph Simulator**, with iterative chunks and prompts for a code-generation LLM to implement each step in a **test-driven** manner. The goal is to ensure incremental progress, strong testing, and a smooth integration of components.
 
-1. High-Level Blueprint
+## High-Level Blueprint
 
-Phase 1: Environment Setup and Project Scaffolding
+### Phase 1: Environment Setup and Project Scaffolding
 
-Set up Flask Backend with a simple /health check endpoint.
+- **Set up Flask Backend** with a simple `/health` check endpoint.
+- **Create a React Frontend** using TypeScript and a basic UI scaffold.
+- **Add Testing Frameworks**: Pytest for the backend, Jest for the frontend.
 
-Create a React Frontend using TypeScript and a basic UI scaffold.
+### Phase 2: Database and API Foundation
 
-Add Testing Frameworks: Pytest for the backend, Jest for the frontend.
+- **Connect Flask to Neo4j** with a basic graph schema.
+- **Implement API Endpoints (Mocked Data):**
+  - `/get_graph` - Returns static graph JSON.
+  - `/update_power` - Returns mock response.
+  - `/get_history` - Empty history response.
+  - `/restore_snapshot` - Placeholder implementation.
+- **Connect Frontend to API** - Calls endpoints and displays mock data.
 
-Phase 2: Database and API Foundation
+### Phase 3: Core Functionality
 
-Connect Flask to Neo4j with a basic graph schema.
+- **Implement Power Update Logic:**
+  - Adjust device power consumption by ±10%.
+  - Store updates in Neo4j.
+- **Create Snapshot System:**
+  - Store power state snapshots in Neo4j.
+  - Enable retrieval and restoration of snapshots.
+- **Enhance UI Graph Rendering:**
+  - Color-coded nodes for load.
+  - Interactive edges with wire details.
 
-Implement API Endpoints (Mocked Data):
+### Phase 4: Advanced Features
 
-/get_graph - Returns static graph JSON.
+- **Add Circuit Balancing Logic:**
+  - Identify overloaded circuits.
+  - Return warnings in API responses.
+- **Develop Dashboard Panel:**
+  - Show total power consumption.
+  - Highlight top power-consuming devices.
+- **Final Testing, Edge Cases & Integration:**
+  - Handle database failures and API errors.
+  - Conduct a complete UI/Backend integration test.
 
-/update_power - Returns mock response.
+---
 
-/get_history - Empty history response.
-
-/restore_snapshot - Placeholder implementation.
-
-Connect Frontend to API - Calls endpoints and displays mock data.
-
-Phase 3: Core Functionality
-
-Implement Power Update Logic:
-
-Adjust device power consumption by ±10%.
-
-Store updates in Neo4j.
-
-Create Snapshot System:
-
-Store power state snapshots in Neo4j.
-
-Enable retrieval and restoration of snapshots.
-
-Enhance UI Graph Rendering:
-
-Color-coded nodes for load.
-
-Interactive edges with wire details.
-
-Phase 4: Advanced Features
-
-Add Circuit Balancing Logic:
-
-Identify overloaded circuits.
-
-Return warnings in API responses.
-
-Develop Dashboard Panel:
-
-Show total power consumption.
-
-Highlight top power-consuming devices.
-
-Final Testing, Edge Cases & Integration:
-
-Handle database failures and API errors.
-
-Conduct a complete UI/Backend integration test.
-
-2. Iterative Chunks
+## Iterative Chunks
 
 Below is a refined, step-by-step breakdown of tasks, each leading to a well-defined, testable feature.
 
-Chunk A: Environment Setup
+### Chunk A: Environment Setup
 
-Steps:
+#### Steps:
 
-Create a new Flask + React project.
+- Create a new Flask + React project.
+- Set up Python virtual environment & dependencies (`Flask, pytest`).
+- Add Jest & TypeScript to React project.
+- Create `app.py` with a `/health` check endpoint.
+- Write a test ensuring `/health` returns `{"status": "ok"}`.
+- Create a `Graph` React component.
+- Add a button labeled "Next Second" (no functionality yet).
 
-Set up Python virtual environment & dependencies (Flask, pytest).
+### Chunk B: Neo4j Connection & Data Model
 
-Add Jest & TypeScript to React project.
+#### Steps:
 
-Create app.py with a /health check endpoint.
+- Install the Neo4j Python driver.
+- Create `db.py` to manage Neo4j sessions.
+- Store sample nodes (`:Device {power_rating_watts: 100}`).
+- Write Pytest test to insert/query sample data.
 
-Write a test ensuring /health returns {"status": "ok"}.
+### Chunk C: Initial REST Endpoints (Mocked Data)
 
-Create a Graph React component.
+#### Steps:
 
-Add a button labeled "Next Second" (no functionality yet).
+- Implement `/get_graph`, `/update_power`, `/get_history`, `/restore_snapshot` as placeholder endpoints.
+- Write Pytest tests verifying correct JSON response structures.
+- Connect the frontend to mock endpoints.
 
-Chunk B: Neo4j Connection & Data Model
+### Chunk D: Implement Power Update Logic
 
-Steps:
+#### Steps:
 
-Install the Neo4j Python driver.
+- Retrieve all `(:Device)` nodes in Neo4j.
+- Randomly adjust `power_rating_watts` by ±10%.
+- Write tests ensuring power values remain within the expected range.
+- Replace `/update_power` mock response with real database updates.
 
-Create db.py to manage Neo4j sessions.
+### Chunk E: Implement Snapshot History & Restoration
 
-Store sample nodes (:Device {power_rating_watts: 100}).
+#### Steps:
 
-Write Pytest test to insert/query sample data.
+- Create `(:Snapshot)` nodes storing all device states.
+- Implement `/get_history` returning snapshot timestamps.
+- Implement `/restore_snapshot` to revert devices to a prior state.
+- Write tests verifying snapshot creation and restoration.
 
-Chunk C: Initial REST Endpoints (Mocked Data)
+### Chunk F: UI Enhancements - Graph Rendering
 
-Steps:
+#### Steps:
 
-Implement /get_graph, /update_power, /get_history, /restore_snapshot as placeholder endpoints.
+- Modify `/get_graph` to include circuit details.
+- Add D3.js-based visualization with interactive edges.
+- Highlight overloaded circuits in red.
+- Write tests verifying the UI correctly displays graph state changes.
 
-Write Pytest tests verifying correct JSON response structures.
+### Chunk G: Dashboard & Circuit Balancing
 
-Connect the frontend to mock endpoints.
+#### Steps:
 
-Chunk D: Implement Power Update Logic
+- Implement logic for detecting overloaded circuits.
+- Expand `/get_graph` to return a `circuit_overload` flag.
+- Add a `Dashboard.tsx` UI component displaying:
+  - Total power consumption.
+  - Top power-consuming devices.
+  - Circuit warnings.
+- Write unit tests for backend overload logic and frontend UI updates.
 
-Steps:
+### Chunk H: Error Handling & Final Testing
 
-Retrieve all (:Device) nodes in Neo4j.
+#### Steps:
 
-Randomly adjust power_rating_watts by ±10%.
+- Handle invalid API inputs.
+- Implement a graceful fallback if the database is unreachable.
+- Write additional unit tests covering edge cases.
+- Conduct a final integration test ensuring all features work seamlessly.
 
-Write tests ensuring power values remain within the expected range.
+---
 
-Replace /update_power mock response with real database updates.
+## Prompt List for Code-Generation LLM
 
-Chunk E: Implement Snapshot History & Restoration
+### Prompt 1: Flask + Pytest Scaffolding
 
-Steps:
-
-Create (:Snapshot) nodes storing all device states.
-
-Implement /get_history returning snapshot timestamps.
-
-Implement /restore_snapshot to revert devices to a prior state.
-
-Write tests verifying snapshot creation and restoration.
-
-Chunk F: UI Enhancements - Graph Rendering
-
-Steps:
-
-Modify /get_graph to include circuit details.
-
-Add D3.js-based visualization with interactive edges.
-
-Highlight overloaded circuits in red.
-
-Write tests verifying the UI correctly displays graph state changes.
-
-Chunk G: Dashboard & Circuit Balancing
-
-Steps:
-
-Implement logic for detecting overloaded circuits.
-
-Expand /get_graph to return a circuit_overload flag.
-
-Add a Dashboard.tsx UI component displaying:
-
-Total power consumption.
-
-Top power-consuming devices.
-
-Circuit warnings.
-
-Write unit tests for backend overload logic and frontend UI updates.
-
-Chunk H: Error Handling & Final Testing
-
-Steps:
-
-Handle invalid API inputs.
-
-Implement a graceful fallback if the database is unreachable.
-
-Write additional unit tests covering edge cases.
-
-Conduct a final integration test ensuring all features work seamlessly.
-
-3. Prompt List for Code-Generation LLM
-
-Prompt 1: Flask + Pytest Scaffolding
-
+```text
 Create a minimal Flask project with:
 - A `requirements.txt` file with Flask & pytest.
 - An `app.py` with a `/health` check returning `{"status": "ok"}`.
 - A `tests/test_app.py` file using Pytest to verify `/health`.
 - Instructions on installing dependencies and running tests.
+```
 
-Prompt 2: Neo4j Connection and Data Model
+### Prompt 2: Neo4j Connection and Data Model
 
+```text
 Extend Flask to connect to a Neo4j database:
 - Install the Neo4j driver.
 - Create `db.py` for session management.
 - Add a sample `(:Device {device_id: "test-device", power_rating_watts:100})`.
 - Write a Pytest test inserting/querying this data.
+```
 
-Prompt 3: Basic REST API with Mocked Data
+### Prompt 3: Basic REST API with Mocked Data
 
+```text
 Add REST API routes:
 - `GET /get_graph` returning `{ "graph": "stub" }`.
 - `POST /update_power` returning `{ "status": "stub" }`.
 - `GET /get_history` returning `{ "history": [] }`.
 - `POST /restore_snapshot` returning `{ "restored": "stub" }`.
 - Write Pytest tests verifying JSON structure.
+```
 
-Prompt 4: Implement Power Update Logic
+### Prompt 4: Implement Power Update Logic
 
+```text
 Modify `/update_power` to:
 - Query all `(:Device)` nodes.
 - Adjust `power_rating_watts` by ±10%.
 - Return updated values in JSON.
 - Write Pytest tests ensuring values remain within expected bounds.
+```
 
-Prompt 5: Snapshot History & Restoration
+### Prompt 5: Snapshot History & Restoration
 
+```text
 Implement snapshot functionality:
 - Store system state snapshots in Neo4j.
 - Update `/get_history` to return snapshot timestamps.
 - Implement `/restore_snapshot` to revert system state.
 - Write tests verifying snapshot creation and restoration.
+```
 
-Prompt 6: UI Enhancements - Graph Rendering
+### Prompt 6: UI Enhancements - Graph Rendering
 
+```text
 Modify `/get_graph`:
 - Include circuit connections.
 - Implement UI graph rendering using D3.js.
 - Highlight overloaded circuits.
 - Write tests verifying graph updates.
+```
 
-Prompt 7: Dashboard & Overload Warnings
+### Prompt 7: Dashboard & Overload Warnings
 
+```text
 Implement a `Dashboard.tsx` component:
 - Display total power usage, highest load devices, and warnings.
 - Fetch from a new `/dashboard_stats` endpoint.
 - Write Jest tests verifying correct dashboard rendering.
+```
 
-Prompt 8: Final Error Handling & Integration
+### Prompt 8: Final Error Handling & Integration
 
+```text
 Ensure robust error handling:
 - Handle invalid snapshot IDs.
 - Return `500` if Neo4j is unreachable.
 - Write tests covering these error cases.
 - Final integration tests ensuring all features work together.
-
-Conclusion
-
-This structured approach ensures an incremental, test-driven development workflow. Each step builds safely on the previous, culminating in a fully functional Home Electrical Graph Simulator with a robust backend, interactive frontend, and well-tested architecture.
+```
 
