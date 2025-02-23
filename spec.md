@@ -54,9 +54,60 @@ This architecture enables the Home Electrical Graph Simulator to provide a respo
 (:ElectricalBox { box_id, junction_type, location })
 ```
 
-### Relationships (Circuits & Wiring)
+#### Relationships (Circuits & Wiring)
+```cypher
 (:Panel)-[:HOT_FEEDS]->(:Breaker)
 (:Breaker)-[:HOT_FEEDS]->(:Outlet)
 (:Device)-[:NEUTRAL_FEEDS]->(:Panel)
 (:Device)-[:GROUND_FEEDS]->(:Panel)
+```
+
+#### Edge Properties (For Wiring Details)
+```cypher
+{ wire_gauge, length_ft, voltage, amperage_limit }
+```
+
+## 5. Backend API Design
+
+### 5.1. REST API Endpoints
+
+| Method | Endpoint            | Description                          |
+|--------|--------------------|--------------------------------------|
+| `GET`  | `/get_graph`       | Fetch the current electrical system graph. |
+| `POST` | `/update_power`    | Generate the next power snapshot.   |
+| `GET`  | `/get_history`     | Retrieve past power snapshots.      |
+| `POST` | `/restore_snapshot` | Load a previous power state.       |
+
+### 5.2. Flask Power Update Logic
+
+```python
+import random
+from flask import Flask, jsonify
+from neo4j import GraphDatabase
+
+app = Flask(__name__)
+
+def update_power_usage():
+    """Simulates power fluctuations for the next second."""
+    with driver.session() as session:
+        result = session.run("MATCH (d:Device) RETURN d.device_id AS id, d.power_rating_watts AS power")
+        updates = []
+        for record in result:
+            fluctuation = random.uniform(-0.1, 0.1)  # ±10% variation
+            new_power = int(record["power"] * (1 + fluctuation))
+            updates.append({"id": record["id"], "power": new_power})
+            session.run("MATCH (d:Device {device_id: $id}) SET d.power_rating_watts = $power", 
+                        id=record["id"], power=new_power)
+    return updates
+
+@app.route('/update_power', methods=['POST'])
+def update_power_route():
+    """API Endpoint to update power usage."""
+    new_data = update_power_usage()
+    return jsonify({"status": "success", "updated_data": new_data})
+
+if __name__ == '__main__':
+    app.run(debug=True)
+```
+
 
