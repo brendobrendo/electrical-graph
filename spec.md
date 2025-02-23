@@ -40,3 +40,23 @@ The system architecture diagram above illustrates the flow of data and interacti
 - The **REST API** facilitates communication between the frontend and the backend, enabling data exchange in JSON format.
 
 This architecture enables the Home Electrical Graph Simulator to provide a responsive and interactive user experience, while leveraging the power of a graph database for efficient data storage and retrieval.
+
+## 4. Data Model
+
+### 4.1. Neo4j Graph Structure
+
+#### Nodes (Electrical Components)
+```cypher
+(:Panel { panel_id, location, voltage, capacity_amperage })
+(:Breaker { breaker_id, amperage_rating, breaker_type, position_in_panel })
+(:Outlet { outlet_id, type, location })
+(:Device { device_id, type, power_rating_watts })
+(:ElectricalBox { box_id, junction_type, location })
+```
+
+### Relationships (Circuits & Wiring)
+(:Panel)-[:HOT_FEEDS]->(:Breaker)
+(:Breaker)-[:HOT_FEEDS]->(:Outlet)
+(:Device)-[:NEUTRAL_FEEDS]->(:Panel)
+(:Device)-[:GROUND_FEEDS]->(:Panel)
+
