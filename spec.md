@@ -110,4 +110,64 @@ if __name__ == '__main__':
     app.run(debug=True)
 ```
 
+## 6. Frontend (React) Implementation
+
+### 6.1. Graph Rendering with D3.js
+
+```tsx
+import React, { useEffect, useState } from 'react';
+import * as d3 from 'd3';
+
+const ElectricalGraph = () => {
+    const [graphData, setGraphData] = useState(null);
+
+    useEffect(() => {
+        fetch('/get_graph')
+            .then(response => response.json())
+            .then(data => setGraphData(data));
+    }, []);
+
+    useEffect(() => {
+        if (!graphData) return;
+        const svg = d3.select('#graph-svg');
+        // Render nodes and edges dynamically
+    }, [graphData]);
+
+    return <svg id="graph-svg" width="800" height="600"></svg>;
+};
+
+export default ElectricalGraph;
+```
+
+## 7. Error Handling & Edge Cases
+
+| Scenario                     | Handling Strategy                                      |
+|------------------------------|-------------------------------------------------------|
+| **Database Connection Fails** | Flask returns `500` with an error message.           |
+| **Invalid API Input**         | Returns `400 Bad Request`.                           |
+| **Overloaded Circuit Detected** | UI highlights node in red, dashboard warns user.   |
+
+## 8. Testing Plan
+
+### 8.1. Unit Tests (Backend)
+
+| Test Case                | Expected Output                                      |
+|--------------------------|------------------------------------------------------|
+| **Fetch graph data**     | Returns valid JSON with all nodes & edges.          |
+| **Simulated power update** | Randomized changes within ±10% per second.        |
+| **Overloaded circuit**   | Correctly flagged as overloaded.                    |
+
+### 8.2. Integration Tests (Frontend & Backend)
+
+- **Graph Rendering**: Verify all electrical components display correctly.
+- **Power Update Simulation**: Clicking "Next Second" should trigger visible changes.
+- **Snapshot History**: Ensure old snapshots persist and restore correctly.
+
+## 9. Future Enhancements
+
+- **Smart Meter API Integration** for real-world power monitoring.
+- **Export to CSV/JSON** for historical power analysis.
+- **Multi-Phase Power Distribution** modeling (3-phase for commercial buildings).
+
+
 
